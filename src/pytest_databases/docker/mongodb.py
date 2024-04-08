@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import os
 from typing import TYPE_CHECKING
+
 import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ServerSelectionTimeoutError
+
+if TYPE_CHECKING:
+    from pytest_databases.docker import DockerServiceRegistry
 
 
 async def mongo_responsive(host: str, mongo_url: str) -> bool:
@@ -13,9 +17,6 @@ async def mongo_responsive(host: str, mongo_url: str) -> bool:
         return bool(await client.server_info())
     except ServerSelectionTimeoutError:
         return False
-
-if TYPE_CHECKING:
-    from pytest_databases.docker import DockerServiceRegistry
 
 
 @pytest.fixture()

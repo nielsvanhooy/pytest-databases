@@ -4,8 +4,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from pytest_databases.docker import DockerServiceRegistry
+
 from pytest_databases.docker.mongodb import mongo_responsive
+
+if TYPE_CHECKING:
+    from pytest_databases.docker import DockerServiceRegistry
 
 pytestmark = pytest.mark.anyio
 pytest_plugins = [
