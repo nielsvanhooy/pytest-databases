@@ -38,7 +38,7 @@ def mongo_url(mongo_db_user: str, mongo_db_password: str, mongo_db_port: str) ->
     return f"mongodb://{mongo_db_user}:{mongo_db_password}@localhost:{mongo_db_port}"
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=False)
 async def mongo_service(docker_services: DockerServiceRegistry, mongo_db_port: str, mongo_url: str) -> None:
     os.environ["MONGO_PORT"] = str(mongo_db_port)
     await docker_services.start("mongo", check=mongo_responsive, mongo_url=mongo_url)
