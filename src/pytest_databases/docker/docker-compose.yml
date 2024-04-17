@@ -1,4 +1,13 @@
 services:
+  mongo:
+    networks:
+      - default
+    image: mongo:7.0
+    ports:
+      - "${MONGO_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "pytest"
+      MONGO_INITDB_ROOT_PASSWORD: "pytest"
   postgres12:
     networks:
       - default
