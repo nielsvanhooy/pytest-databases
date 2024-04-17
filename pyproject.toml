@@ -66,7 +66,7 @@ postgres = ["asyncpg>=0.29.0"]
 redis = ["redis"]
 spanner = ["google-cloud-spanner"]
 sqlite = ["aiosqlite"]
-mongo = ["motor"]
+mongodb = ["motor"]
 
 ######################
 # Build & Versioning #

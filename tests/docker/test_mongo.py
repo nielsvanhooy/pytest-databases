@@ -17,7 +17,7 @@ pytest_plugins = [
 
 
 def test_mongo_default_config(mongo_url: int) -> None:
-    assert mongo_url == "mongodb://app:app@localhost:27017"
+    assert mongo_url == "mongodb://pytest:pytest@localhost:17017"
 
 
 async def test_mongodb_service(
