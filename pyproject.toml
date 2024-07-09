@@ -30,6 +30,7 @@ keywords = [
   "cockroachdb",
   "redis",
   "elasticsearch",
+    "mongodb"
 ]
 # options under https://pypi.org/classifiers/
 classifiers = [
@@ -44,7 +45,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 # direct dependencies of this package
-dependencies = ["pytest"]
+dependencies = [
+    "pytest",
+    "anyio>=4.3.0",
+]
 
 [project.urls]
 Documentation = "https://github.com/litestar-org/pytest-databases#readme"
@@ -66,6 +70,7 @@ postgres = ["asyncpg>=0.29.0"]
 redis = ["redis"]
 spanner = ["google-cloud-spanner"]
 sqlite = ["aiosqlite"]
+mongodb = ["motor"]
 
 ######################
 # Build & Versioning #
@@ -112,6 +117,7 @@ features = [
   "elasticsearch8",
   "bigquery",
   "azure-storage",
+    "mongodb",
 ]
 template = "default"
 type = "virtual"
@@ -170,6 +176,7 @@ features = [
   "elasticsearch7",
   "elasticsearch8",
   "bigquery",
+    "mongodb",
 ]
 python = "3.11"
 template = "default"
@@ -240,6 +247,7 @@ features = [
   "elasticsearch7",
   "elasticsearch8",
   "bigquery",
+    "mongodb",
 ]
 path = ".venv/"
 python = "3.11"
@@ -277,6 +285,7 @@ features = [
   "elasticsearch7",
   "elasticsearch8",
   "bigquery",
+    "mongodb",
 ]
 python = "3.11"
 template = "docs"
@@ -596,6 +605,7 @@ markers = [
   "duckdb: DuckDB Tests",
   "mssql: Microsoft SQL Server Tests",
   "elasticsearch: Elasticsearch Tests",
+    "mongodb: MongoDB Server Tests"
 ]
 testpaths = ["tests"]
 
