@@ -21,9 +21,9 @@ def test_mongo_default_config(mongo_url: int) -> None:
 
 
 async def test_mongodb_service(
-    docker_ip: str,
+    mongo_docker_ip: str,
     mongo_service: DockerServiceRegistry,
     mongo_url: str,
 ) -> None:
-    ping = await mongo_responsive(docker_ip, mongo_url)
+    ping = await mongo_responsive(mongo_docker_ip, mongo_url)
     assert ping
