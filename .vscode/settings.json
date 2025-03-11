@@ -26,7 +26,9 @@
   },
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "pylint.importStrategy": "fromEnvironment",
-  "python.autoComplete.extraPaths": ["${workspaceFolder}/src"],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.terminal.executeInFileDir": true,
   "python.testing.pytestEnabled": true,
@@ -35,7 +37,9 @@
   "python.analysis.autoFormatStrings": true,
   "editor.formatOnSave": true,
   "notebook.formatOnSave.enabled": true,
-  "black-formatter.args": ["--line-length=120"],
+  "black-formatter.args": [
+    "--line-length=120"
+  ],
   "evenBetterToml.formatter.reorderKeys": true,
   "evenBetterToml.formatter.trailingNewline": true,
   "evenBetterToml.formatter.columnWidth": 120,
@@ -66,7 +70,9 @@
   "sqltools.disableNodeDetectNotifications": true,
   "cloudcode.duetAI.enable": true,
   "cloudcode.compute.sshInternalIp": true,
-  "python.testing.pytestArgs": ["tests"],
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
   "markdownlint.run": "onSave",
   "markdownlint.config": {
     "default": true,
@@ -88,5 +94,8 @@
     "tag:yaml.org,2002:python/name:material.extensions.emoji.to_svg",
     "tag:yaml.org,2002:python/name:material.extensions.emoji.twemoji",
     "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+  ],
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/src"
   ]
 }
