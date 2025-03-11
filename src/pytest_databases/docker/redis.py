@@ -1,85 +1,76 @@
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-from typing import TYPE_CHECKING, AsyncGenerator
+import dataclasses
+from typing import TYPE_CHECKING, Generator
 
 import pytest
-from redis.asyncio import Redis as AsyncRedis
+from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from pytest_databases.docker import DockerServiceRegistry
-from pytest_databases.helpers import simple_string_hash
+from pytest_databases.helpers import get_xdist_worker_num
+from pytest_databases.types import ServiceContainer, XdistIsolationLevel
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from pytest_databases._service import DockerService
 
 
-COMPOSE_PROJECT_NAME: str = f"pytest-databases-redis-{simple_string_hash(__file__)}"
+@dataclasses.dataclass
+class RedisService(ServiceContainer):
+    db: int
 
 
-async def redis_responsive(host: str, port: int) -> bool:
-    client: AsyncRedis = AsyncRedis(host=host, port=port)
+@pytest.fixture(scope="session")
+def xdist_redis_isolation_level() -> XdistIsolationLevel:
+    return "database"
+
+
+def redis_responsive(service_container: ServiceContainer) -> bool:
+    client = Redis(host=service_container.host, port=service_container.port)
     try:
-        return await client.ping()
+        return client.ping()
     except (ConnectionError, RedisConnectionError):
         return False
     finally:
-        await client.aclose()  # type: ignore[attr-defined]
+        client.close()
 
 
 @pytest.fixture(scope="session")
-def redis_compose_project_name() -> str:
-    return os.environ.get("COMPOSE_PROJECT_NAME", COMPOSE_PROJECT_NAME)
+def redis_port(redis_service: RedisService) -> int:
+    return redis_service.port
+
+
+@pytest.fixture(scope="session")
+def redis_host(redis_service: RedisService) -> str:
+    return redis_service.host
+
+
+@pytest.fixture(scope="session")
+def redis_image() -> str:
+    return "redis:latest"
 
 
 @pytest.fixture(autouse=False, scope="session")
-def redis_docker_services(
-    redis_compose_project_name: str, worker_id: str = "main"
-) -> Generator[DockerServiceRegistry, None, None]:
-    if os.getenv("GITHUB_ACTIONS") == "true" and sys.platform != "linux":
-        pytest.skip("Docker not available on this platform")
+def redis_service(
+    docker_service: DockerService,
+    redis_image: str,
+    xdist_redis_isolation_level: XdistIsolationLevel,
+) -> Generator[RedisService, None, None]:
+    worker_num = get_xdist_worker_num()
+    name = "redis"
+    db = 0
+    if worker_num is not None:
+        if xdist_redis_isolation_level == "database":
+            container_num = worker_num // 1
+            name += f"_{container_num + 1}"
+            db = worker_num
+        else:
+            name += f"_{worker_num + 1}"
 
-    registry = DockerServiceRegistry(worker_id, compose_project_name=redis_compose_project_name)
-    try:
-        yield registry
-    finally:
-        registry.down()
-
-
-@pytest.fixture(scope="session")
-def redis_port() -> int:
-    return 6397
-
-
-@pytest.fixture(scope="session")
-def redis_docker_compose_files() -> list[Path]:
-    return [Path(Path(__file__).parent / "docker-compose.redis.yml")]
-
-
-@pytest.fixture(scope="session")
-def default_redis_service_name() -> str:
-    return "redis"
-
-
-@pytest.fixture(scope="session")
-def redis_docker_ip(redis_docker_services: DockerServiceRegistry) -> str:
-    return redis_docker_services.docker_ip
-
-
-@pytest.fixture(autouse=False, scope="session")
-async def redis_service(
-    redis_docker_services: DockerServiceRegistry,
-    default_redis_service_name: str,
-    redis_docker_compose_files: list[Path],
-    redis_port: int,
-) -> AsyncGenerator[None, None]:
-    os.environ["REDIS_PORT"] = str(redis_port)
-    await redis_docker_services.start(
-        name=default_redis_service_name,
-        docker_compose_files=redis_docker_compose_files,
+    with docker_service.run(
+        redis_image,
         check=redis_responsive,
-        port=redis_port,
-    )
-    yield
+        container_port=6379,
+        name=name,
+        transient=xdist_redis_isolation_level == "server",
+    ) as service:
+        yield RedisService(host=service.host, port=service.port, db=db)
